@@ -54,10 +54,11 @@ Project Organization
 
 --------
  Instructions to replicate:
- 
+
 ```
 python -m venv myenv
 myenv\Scripts\activate
 pip install cookiecutter 
 cookiecutter -c v1 https://github.com/drivendata/cookiecutter-data-science
 ```
+Finally add the file ``myenv/`` to gitignore
