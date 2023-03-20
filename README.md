@@ -9,3 +9,9 @@ Repositorio en donde se implementa un sistema de recomendación basado en conten
 - Crear un documento HTML centrado
 - Explorar la librería spotipy
 - Proponer mejoras en la implementación
+
+## Pasos posteriores
+- Segmentar por genero
+- Crear la interfaz de usuario
+- Base sesgado por los 4 integrantes (mejorar)
+- Agregar el parámetro 'time_signature'
