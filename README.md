@@ -15,3 +15,6 @@ Repositorio en donde se implementa un sistema de recomendación basado en conten
 - Crear la interfaz de usuario
 - Base sesgado por los 4 integrantes (mejorar)
 - Agregar el parámetro 'time_signature'
+- Agregar un input del usuario, clasificarlo como positivo o negativo, y enviar como parámetro al modelo.
+- Evaluar la aplicación con javascript que proporciona Spotify
+- Mejorar la seguridad de las credenciales de spotify
