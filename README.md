@@ -18,3 +18,5 @@ Repositorio en donde se implementa un sistema de recomendación basado en conten
 - Agregar un input del usuario, clasificarlo como positivo o negativo, y enviar como parámetro al modelo.
 - Evaluar la aplicación con javascript que proporciona Spotify
 - Mejorar la seguridad de las credenciales de spotify
+
+This project is by Codificando bits, It is a web page using flask, I separated it because of conda envirnoment accept run code on C path.

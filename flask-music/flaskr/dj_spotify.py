@@ -23,11 +23,11 @@ def index():
     
     return json.dumps(r)
 
-# @bp.route('/get_prediction', method=('GET', 'POST'))
-# def get_prediction():
-    # Obtener el dataframe del usuario
-    # Obtener el dataframe del DMC (base de datos)
-    # retornar la predicción
+@bp.route('/get_prediction', method=('GET', 'POST'))
+def get_prediction():
+    Obtener el dataframe del usuario
+    Obtener el dataframe del DMC (base de datos)
+    retornar la predicción
 
 
 
