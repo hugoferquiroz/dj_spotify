@@ -151,6 +151,8 @@ class SpotipyClient():
 
         return candidates_df
 
+# Métodos a implementar
+
     def compute_cossim(self, top_tracks_df, candidates_df):
         '''Calcula la similitud del coseno entre cada top_track y cada pista
         candidata en candidates_df. Retorna matriz de n_top_tracks x n_candidates_df'''
@@ -194,6 +196,9 @@ class SpotipyClient():
 
         return cands
 
+## Fin 
+
+## Main
     def create_recommended_playlist(self):
         '''Crear la lista de recomendaciones en Spotify. Ejecuta todos los métodos
         anteriores'''

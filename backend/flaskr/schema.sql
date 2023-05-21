@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS tracks;
 
 CREATE TABLE tracks (
+  user TEXT NOT NULL,
   id TEXT NOT NULL,
   acousticness REAL NOT NULL,
   danceability REAL NOT NULL,

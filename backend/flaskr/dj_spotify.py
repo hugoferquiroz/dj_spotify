@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
 from werkzeug.exceptions import abort
 
@@ -65,20 +65,52 @@ bp = Blueprint('dj_spotify', __name__)
 def index():
     cur = get_db().cursor()
     cur.execute(
-        'SELECT id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, valence'
+        'SELECT user, id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, valence'
         ' FROM tracks'
     )
     r = [dict((cur.description[i][0], value) \
          for i, value in enumerate(row )) \
          for row in cur.fetchall()]
-    
-    return json.dumps(r)
+    return jsonify(r)
+
+@bp.route('/track', methods=['GET'])
+def get_tracks():
+    user = request.args.get("user")
+    print('user:', user)
+
+    cur = get_db().cursor()
+    cur.execute(
+        'SELECT user, id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, valence'
+        ' FROM tracks'
+        ' WHERE user = ?',
+        (user,)
+    )
+
+    r = [dict((cur.description[i][0], value) \
+         for i, value in enumerate(row )) \
+         for row in cur.fetchall()]
+    return jsonify(r)
+
+
+@bp.route('/track', methods=['POST'])
+def add_track():
+    track = request.get_json()
+
+    db = get_db()
+    db.execute('INSERT INTO tracks (user, id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, valence)'
+               ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+               (track['user'], track['id'], track['acousticness'], track['danceability'], track['duration_ms'], track['energy'], track['instrumentalness'], track['key'], track['liveness'], track['loudness'], track['mode'], track['speechiness'], track['tempo'], track['valence']))
+    db.commit()
+
+    return jsonify(track)
+
 
 @bp.route('/prediction')
 def get_prediction():
     # Obtener el dataframe del DMC (base de datos) -> (candidates_df)
     candidates_df = pd.read_csv('../data/datadmc.csv')
-
+    candidates_df = candidates_df.loc[:, candidates_df.columns != 'user']
+    
     # Obtener el dataframe del usuario -> (top_tracks_df) // Corregir
     top_tracks_df = candidates_df[:10].copy()
     
@@ -110,7 +142,7 @@ def get_prediction():
     ids_playlist_dep = list(set(ids_playlist_dep))
 
     # retornar la predicción
-    return ids_playlist_dep
+    return jsonify(ids_playlist_dep)
 
 
 
