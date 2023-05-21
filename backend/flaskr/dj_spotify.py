@@ -10,6 +10,7 @@ from json import JSONEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics.pairwise import linear_kernel
 import numpy as np
+from flask_cors import cross_origin
 
 # Funciones de codificando bits
 def compute_cossim(top_tracks_df, candidates_df):
@@ -62,6 +63,7 @@ def content_based_filtering(pos, cos_sim, ncands, umbral = 0.8):
 bp = Blueprint('dj_spotify', __name__)
 
 @bp.route('/')
+@cross_origin()
 def index():
     cur = get_db().cursor()
     cur.execute(
@@ -74,6 +76,7 @@ def index():
     return jsonify(r)
 
 @bp.route('/track', methods=['GET'])
+@cross_origin()
 def get_tracks():
     user = request.args.get("user")
     print('user:', user)
@@ -91,8 +94,8 @@ def get_tracks():
          for row in cur.fetchall()]
     return jsonify(r)
 
-
 @bp.route('/track', methods=['POST'])
+@cross_origin()
 def add_track():
     track = request.get_json()
 
@@ -104,9 +107,10 @@ def add_track():
 
     return jsonify(track)
 
-
 @bp.route('/prediction')
+@cross_origin()
 def get_prediction():
+    user = request.args.get("user")
     # Obtener el dataframe del DMC (base de datos) -> (candidates_df)
     candidates_df = pd.read_csv('../data/datadmc.csv')
     candidates_df = candidates_df.loc[:, candidates_df.columns != 'user']

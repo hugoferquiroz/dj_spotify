@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 
 # Application factory
 def create_app(test_config=None):
@@ -34,5 +35,8 @@ def create_app(test_config=None):
     from . import dj_spotify
     app.register_blueprint(dj_spotify.bp)
     app.add_url_rule('/', endpoint='index')
-    
+
+    cors = CORS(app)
+    app.config['CORS_HEADERS'] = 'Content-Type'
+
     return app
