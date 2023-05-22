@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, make_response
 )
 from werkzeug.exceptions import abort
 
@@ -56,7 +56,15 @@ def content_based_filtering(pos, cos_sim, ncands, umbral = 0.8):
 
     return cands
 
+def _build_cors_preflight_response():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add('Access-Control-Allow-Headers', "*")
+    response.headers.add('Access-Control-Allow-Methods', "*")
+    return response
 
+def _corsify_actual_response(response):
+    return response
 
 # App flask 
 
@@ -76,7 +84,6 @@ def index():
     return jsonify(r)
 
 @bp.route('/track', methods=['GET'])
-@cross_origin()
 def get_tracks():
     user = request.args.get("user")
     print('user:', user)
@@ -94,29 +101,36 @@ def get_tracks():
          for row in cur.fetchall()]
     return jsonify(r)
 
-@bp.route('/track', methods=['POST'])
+@bp.route('/track', methods=['POST', 'OPTIONS'])
 @cross_origin()
 def add_track():
-    track = request.get_json()
+    print('metdd: ', request.method)
+    if request.method == "OPTIONS": # CORS preflight
+        return _build_cors_preflight_response()
+    elif request.method == "POST":  # Actual request following the preflight
+        track = request.get_json()
+        print(track)
 
-    db = get_db()
-    db.execute('INSERT INTO tracks (user, id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, valence)'
-               ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-               (track['user'], track['id'], track['acousticness'], track['danceability'], track['duration_ms'], track['energy'], track['instrumentalness'], track['key'], track['liveness'], track['loudness'], track['mode'], track['speechiness'], track['tempo'], track['valence']))
-    db.commit()
-
-    return jsonify(track)
+        db = get_db()
+        db.execute('INSERT INTO tracks (user, id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, valence)'
+                   ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                   (track['user'], track['id'], track['acousticness'], track['danceability'], track['duration_ms'], track['energy'], track['instrumentalness'], track['key'], track['liveness'], track['loudness'], track['mode'], track['speechiness'], track['tempo'], track['valence']))
+        db.commit()
+        return _corsify_actual_response(jsonify(track))
+    
+    else:
+        raise RuntimeError("Weird - don't know how to handle method {}".format(request.method))
 
 @bp.route('/prediction')
 @cross_origin()
 def get_prediction():
     user = request.args.get("user")
     # Obtener el dataframe del DMC (base de datos) -> (candidates_df)
-    candidates_df = pd.read_csv('../data/datadmc.csv')
+    candidates_df = pd.read_csv('../data/datadmc.csv') # root
     candidates_df = candidates_df.loc[:, candidates_df.columns != 'user']
-    
+    print('candidates_df:', candidates_df)
     # Obtener el dataframe del usuario -> (top_tracks_df) // Corregir
-    top_tracks_df = candidates_df[:10].copy()
+    top_tracks_df = candidates_df[:10].copy() # user
     
     # Prediction
     cos_sim = compute_cossim(top_tracks_df, candidates_df)
