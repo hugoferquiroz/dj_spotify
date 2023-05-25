@@ -36,7 +36,7 @@ def create_app(test_config=None):
     app.register_blueprint(dj_spotify.bp)
     app.add_url_rule('/', endpoint='index')
 
-    cors = CORS(app)
+    CORS(app)
     app.config['CORS_HEADERS'] = 'Content-Type'
 
     return app
