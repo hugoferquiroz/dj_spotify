@@ -125,13 +125,19 @@ def add_track():
 @cross_origin()
 def get_prediction():
     user = request.args.get("user")
+
+    # Connect to the SQLite database
+    conn = get_db()
+
+    # Query the data from the database and store it in a DataFrame
     # Obtener el dataframe del DMC (base de datos) -> (candidates_df)
-    candidates_df = pd.read_csv('../data/datadmc.csv') # root
-    candidates_df = candidates_df.loc[:, candidates_df.columns != 'user']
-    print('candidates_df:', candidates_df)
+    query = "SELECT id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, valence FROM tracks WHERE user = 'root'"
+    candidates_df = pd.read_sql_query(query, conn)
+
     # Obtener el dataframe del usuario -> (top_tracks_df) // Corregir
-    top_tracks_df = candidates_df[:10].copy() # user
-    
+    query = f"SELECT id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, valence FROM tracks WHERE user = '{user}'"
+    top_tracks_df = pd.read_sql_query(query, conn)
+     
     # Prediction
     cos_sim = compute_cossim(top_tracks_df, candidates_df)
 
